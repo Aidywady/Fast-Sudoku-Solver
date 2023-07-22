@@ -85,11 +85,7 @@ if multiple_solutions > 0:
 # Print some useful information about solve speed, average times, etc. 
 print("\n") 
 print(round(database_length / (total_time / 1000), 1), "puzzles solved per second.")
-
 print("average time:", round((total_time / database_length), 3), "ms")
-
 print("total time:", round((total_time / 1000), 3), "s")
-
 print("slowest time:", round((max_time), 3), "ms")
-
 print("fastest time:", round((min_time), 3), "ms") 
