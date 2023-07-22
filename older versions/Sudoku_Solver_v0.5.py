@@ -3,7 +3,7 @@ import sys
 import os
 import time
 
-import Sudoku_Solver_APIs_v0_5 as sudoku
+import Sudoku_Solver_Functions_v0_5 as sudoku
 
 start_time = time.perf_counter()
 
