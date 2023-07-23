@@ -23,10 +23,10 @@ solutions = 0 # The number of puzzles with a single solution (proper sudoku puzz
 no_solution = 0 # The number of puzzles with no solution
 multiple_solutions = 0 # The number of puzzles with more than one solution
 
-check_other_solutions = True # If we want to check how many solutions each puzzle has, set this to True (the solve function will return that the puzzle will have 0, 1 or 2+ solutions). Note that this slows the solve speed.
+check_other_solutions = False # If we want to check how many solutions each puzzle has, set this to True (the solve function will return that the puzzle will have 0, 1 or 2+ solutions). Note that this slows the solve speed.
 
 # Opening a file to save all the solutions to
-with open('dataset_solutions.txt', 'w') as f:
+with open('database_solutions.txt', 'w') as f:
 	f.write("# Solutions to " + filename)
 
 # A for loop that will repeat for each puzzle of the database
@@ -37,7 +37,7 @@ for number in range(database_length):
 	
 	print("Puzzle", number+1, "/", database_length, ":", end=' ') # Print the puzzle number being solved, but don't end on a newline.
 	
-	solution, number_of_solutions = sudoku.Solve(puzzle.copy()) # The solve function solves the sudoku. It returns the solution, as well as whether the puzzle has 0, 1 or 2+ (if check_other_solutions = True) solutions. 
+	solution, number_of_solutions = sudoku.Solve(puzzle.copy(), check_other_solutions) # The solve function solves the sudoku. It returns the solution, as well as whether the puzzle has 0, 1 or 2+ (if check_other_solutions = True) solutions. 
 	
 	time_elapsed = (time.perf_counter() - start_time) * 1000 # We work out the time taken to solve using the difference between the initial and current time.
 	
@@ -52,18 +52,18 @@ for number in range(database_length):
 	
 	if number_of_solutions == 0: # If no solution was found, print this and indicate it in the solutions file.
 		print("No solution found.")
-		with open('dataset_solutions.txt', 'a') as f:
+		with open('database_solutions.txt', 'a') as f:
 			f.write("No solution found.")
 		no_solution += 1
 
 	if number_of_solutions == 1: # If one solution is found, print "solved." and save the solution to the solution database.
 		print("Solved.")
-		sudoku.append_to_database('database_solutions.txt', solution)
+		sudoku.append_puzzle('database_solutions.txt', solution)
 		solutions += 1
         
 	if number_of_solutions == 2: # If more than one solution was found, print that it is "not a proper sudoku" and indicate it in the solutions file.
 		print("This is not a proper Sodoku.")
-		with open('dataset_solutions.txt', 'a') as f:
+		with open('database_solutions.txt', 'a') as f:
 			f.write("Not a Proper puzzle (multiple solutions).")
 		multiple_solutions += 1
     	
