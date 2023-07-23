@@ -33,8 +33,13 @@ def read_puzzle(filename):
 # A function to read a text file containing multiple puzzles, and return the puzzles as nx9x9 array 
 def read_database(filename):
 	# The function also has a caching feature that saves the numpy array, making it faster to open on subsequent attempts.
-	cache_file = os.path.dirname(filename) + '\\cache\\' + os.path.splitext(os.path.basename(filename))[0] + '.npy'
+	if os.path.dirname(filename) == '':
+		path = os.getcwd()
+	else:
+		path = os.path.dirname(filename)
 	
+	cache_file = path + '\\cache\\' + os.path.splitext(os.path.basename(filename))[0] + '.npy'
+	print(cache_file)
 	if os.path.isfile(cache_file):
 		puzzle = np.load(cache_file)
 		return puzzle.copy(), np.shape(puzzle)[0]
