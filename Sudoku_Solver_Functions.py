@@ -5,12 +5,11 @@ Created: 5 April 2023
 License: GPL-3.0 license
 Description: A fast python based sudoku solving Function suite that uses NumPy. Useful for any sudoku relating code in python.
 User Reference Guide: https://github.com/Aidywady/Fast-Sudoku-Solver/blob/main/README.md
-Dependencies: numpy, sys, os
+Dependencies: numpy, os
 """
 
 # import required libraries
 import numpy as np
-import sys
 import os
 
 # A function to read a text file containing a puzzle, and return the puzzle as a 9x9 numpy array
@@ -18,14 +17,14 @@ def read_puzzle(filename):
 	data = ""
 	if not os.path.isfile(filename):
 		print("No sudoku puzzle found at", filename)
-		sys.exit()
+		return np.zeros(shape=[9, 9], dtype=np.int8)
 	print("opening puzzle file at path", filename)
 	with open(filename, 'r') as file:
 		data = file.read()
 	data = " ".join(data.replace("-", "0").replace(".", "0").replace("?", "0").replace("*", "0").replace(" ", "").replace("\n", ""))
 	if len(data) != 161:
-		print("Text file does not contain a valid Sudoku puzzle")
-		sys.exit()
+		print("No sudoku puzzle found at", filename)
+		return np.zeros(shape=[9, 9], dtype=np.int8)
 	puzzle = np.fromstring(data, sep= " ", dtype=np.int8)
 	puzzle = puzzle.reshape(9, 9)
 	return puzzle
@@ -39,7 +38,7 @@ def read_database(filename):
 		path = os.path.dirname(filename)
 	
 	cache_file = path + '\\cache\\' + os.path.splitext(os.path.basename(filename))[0] + '.npy'
-	print(cache_file)
+	
 	if os.path.isfile(cache_file):
 		puzzle = np.load(cache_file)
 		return puzzle.copy(), np.shape(puzzle)[0]
@@ -50,7 +49,8 @@ def read_database(filename):
 	puzzle = np.zeros(shape=0, dtype=np.int8)
 	if not os.path.isfile(filename):
 		print("No sudoku database found at", filename)
-		sys.exit()
+		return np.zeros(shape=[9, 9], dtype=np.int8), 0
+	
 	print("opening sudoku database at path", filename)
 	
 	for line in open(filename, 'r'):
@@ -63,7 +63,11 @@ def read_database(filename):
 				puzzle = np.append(puzzle, np.fromstring(data, sep= " ", dtype=np.int8))
 				data = ''
 				if length % 100000 == 0:
-					print(str(length) + " puzzles found...")
+					print(length, " puzzles found...")
+    
+	if length == 0:
+		print("No sudoku puzzle found at", filename)
+		return np.zeros(shape=[9, 9], dtype=np.int8), 0
 					
 	data = " ".join(data.replace(".", "0"))
 	
@@ -83,11 +87,31 @@ def write_puzzle(filename, puzzle):
 		f.write(string)
 
 # A function to append a singe puzzle to the end of a text file in a 81x1 shape. Useful for adding puzzles to a dataset
-def append_to_database(filename, puzzle):
+def append_puzzle(filename, puzzle):
 	string = np.array2string(puzzle, separator=' ').replace("[", "").replace("]", "").replace(" ", "").replace("\n", "").replace("0", ".")
 	with open(filename, 'a') as f:
 		f.write("\n")
 		f.write(string)
+
+# A function for printing the puzzle and solution in a user friendly manner (using some unicode symbols)
+def print_puzzle(puzzle):
+	print("╔═══════╤═══════╤═══════╗")
+	for row in range(9):
+		if row % 3 == 0 and row != 0:
+			print("╟───────┼───────┼───────╢")
+		for col in range(9):
+			if col == 0 :
+				print("║ ", end="")
+			
+			if col % 3 == 0 and col != 0:
+				print("│ ", end="")
+				
+			print(str(puzzle[row, col]).replace("0", " "), end=" ")
+			
+			if col == 8:
+				print("║")
+				
+	print("╚═══════╧═══════╧═══════╝")
 
 # A pair of internally used functions that can be faster than np.any and np.all on smaller arrays.
 def myany(array):
@@ -221,33 +245,33 @@ def find_locked_candidates(candidates):
 	return candidates, False
 
 # A function for retreiving previous (incorrect) guesses
-def read_puzzle_branch(puzzle_branches, candidate_branches, guess_number):
-	branch = abs(puzzle_branches[0, :, :] * (puzzle_branches[1, :, :] <= guess_number))
+def read_puzzle_guess(puzzle_guesses,  candidate_guesses, guess_number):
+	branch = abs(puzzle_guesses[0, :, :] * (puzzle_guesses[1, :, :] <= guess_number))
 	
-	guessed_number_mask = (puzzle_branches[0, :, :] < 0) * (puzzle_branches[1, :, :] == guess_number)
+	guessed_number_mask = (puzzle_guesses[0, :, :] < 0) * (puzzle_guesses[1, :, :] == guess_number)
 	branch = np.where(guessed_number_mask, -branch, branch)
 	
-	branch_candidates = (candidate_branches >= guess_number)
+	branch_candidates = ( candidate_guesses >= guess_number)
 	return branch, branch_candidates
 
 # A function for saving a guess (in case it turns out to be incorrect)
-def write_puzzle_branch(puzzle, co_ord, number, candidates, puzzle_branches, candidate_branches, guess_number):
-	puzzle_branches *= puzzle_branches[1, :, :] < guess_number
+def write_puzzle_guess(puzzle, co_ord, number, candidates, puzzle_guesses,  candidate_guesses, guess_number):
+	puzzle_guesses *= puzzle_guesses[1, :, :] < guess_number
 	
-	puzzle_branches[0, :, :] += puzzle * (puzzle_branches[0, :, :] == 0)
-	puzzle_branches[0, co_ord[0], co_ord[1]] *= -1
+	puzzle_guesses[0, :, :] += puzzle * (puzzle_guesses[0, :, :] == 0)
+	puzzle_guesses[0, co_ord[0], co_ord[1]] *= -1
 	
-	puzzle_branches[1, :, :] += guess_number * (puzzle != 0) * (puzzle_branches[0, :, :] * puzzle_branches[1, :, :] == 0)
+	puzzle_guesses[1, :, :] += guess_number * (puzzle != 0) * (puzzle_guesses[0, :, :] * puzzle_guesses[1, :, :] == 0)
 	
-	candidate_branches = np.where(candidate_branches >= guess_number, guess_number - 1, candidate_branches)
+	candidate_guesses = np.where( candidate_guesses >= guess_number, guess_number - 1,  candidate_guesses)
 	
-	candidate_branches = np.where(candidates, guess_number, candidate_branches)
-	candidate_branches[number-1, co_ord[0], co_ord[1]] = guess_number-1
+	candidate_guesses = np.where(candidates, guess_number,  candidate_guesses)
+	candidate_guesses[number-1, co_ord[0], co_ord[1]] = guess_number-1
 	
-	return candidate_branches
+	return  candidate_guesses
 
 # A function for making and going back on guesses when logical solving isn't enough
-def heuristic_guess(puzzle, guess_number, puzzle_branches, candidate_branches, go_back, candidates):
+def heuristic_guess(puzzle, guess_number, puzzle_guesses,  candidate_guesses, go_back, candidates):
 	number = 0
 	co_ord = (0, 0)
 	
@@ -258,9 +282,9 @@ def heuristic_guess(puzzle, guess_number, puzzle_branches, candidate_branches, g
 			
 			# If there are no more guesses to return on, quit early
 			if guess_number == 0:
-				return [puzzle, guess_number, puzzle_branches, candidates, candidate_branches]
+				return [puzzle, guess_number, puzzle_guesses, candidates,  candidate_guesses]
 			
-			puzzle, candidates = read_puzzle_branch(puzzle_branches, candidate_branches, guess_number)
+			puzzle, candidates = read_puzzle_guess(puzzle_guesses,  candidate_guesses, guess_number)
 			
 			i = np.argmin(puzzle)
 			
@@ -318,7 +342,7 @@ def heuristic_guess(puzzle, guess_number, puzzle_branches, candidate_branches, g
 	
 	puzzle[co_ord] = number
 	
-	candidate_branches = write_puzzle_branch(puzzle, co_ord, number, candidates, puzzle_branches, candidate_branches, guess_number)
+	candidate_guesses = write_puzzle_guess(puzzle, co_ord, number, candidates, puzzle_guesses,  candidate_guesses, guess_number)
 	
 	guess_number += 1
 	
@@ -326,11 +350,11 @@ def heuristic_guess(puzzle, guess_number, puzzle_branches, candidate_branches, g
 	temp[co_ord] = number
 	candidates, error = eliminate_candidates(temp, candidates)
 
-	return [puzzle, guess_number, puzzle_branches, candidates, candidate_branches]
+	return [puzzle, guess_number, puzzle_guesses, candidates,  candidate_guesses]
 
 # An alternative to the heuristic guessing function. This one randomly picks a candidate.
 # It is useful for generating puzzles.
-def random_guess(puzzle, guess_number, puzzle_branches, candidate_branches, go_back, candidates):
+def random_guess(puzzle, guess_number, puzzle_guesses,  candidate_guesses, go_back, candidates):
 	number = 0
 	co_ord = (0, 0)
 	
@@ -339,7 +363,7 @@ def random_guess(puzzle, guess_number, puzzle_branches, candidate_branches, go_b
 		
 		if go_back:
 			guess_number -= 1   
-			puzzle, candidates = read_puzzle_branch(puzzle_branches, candidate_branches, guess_number)
+			puzzle, candidates = read_puzzle_guess(puzzle_guesses,  candidate_guesses, guess_number)
 						
 		temp = np.argmin(puzzle)			
 		co_ord = (int(temp/9), temp % 9)
@@ -354,7 +378,7 @@ def random_guess(puzzle, guess_number, puzzle_branches, candidate_branches, go_b
 			
 	puzzle[co_ord] = number
 	
-	candidate_branches = write_puzzle_branch(puzzle, co_ord, number, candidates, puzzle_branches, candidate_branches, guess_number)
+	candidate_guesses = write_puzzle_guess(puzzle, co_ord, number, candidates, puzzle_guesses,  candidate_guesses, guess_number)
 	
 	guess_number += 1
 	
@@ -362,7 +386,7 @@ def random_guess(puzzle, guess_number, puzzle_branches, candidate_branches, go_b
 	temp[co_ord] = number
 	candidates, error = eliminate_candidates(temp, candidates)
 
-	return [puzzle, guess_number, puzzle_branches, candidates, candidate_branches]
+	return [puzzle, guess_number, puzzle_guesses, candidates,  candidate_guesses]
 
 # A function for checking that no number is repeated in a row. It is used by the valid_sudoku function
 def unique(a):
@@ -377,26 +401,6 @@ def valid_sudoku(puzzle):
 	
 	return True
 
-# A function for printing the puzzle and solution in a user friendly manner (using some unicode symbols)
-def print_puzzle(puzzle):
-	print("╔═══════╤═══════╤═══════╗")
-	for row in range(9):
-		if row % 3 == 0 and row != 0:
-			print("╟───────┼───────┼───────╢")
-		for col in range(9):
-			if col == 0 :
-				print("║ ", end="")
-			
-			if col % 3 == 0 and col != 0:
-				print("│ ", end="")
-				
-			print(str(puzzle[row, col]).replace("0", " "), end=" ")
-			
-			if col == 8:
-				print("║")
-				
-	print("╚═══════╧═══════╧═══════╝")
-
 # The actual function that solves a puzzle
 def Solve(puzzle, check_other_solutions=False):
 	# Check that the puzzle doesn't already break the rule
@@ -409,8 +413,8 @@ def Solve(puzzle, check_other_solutions=False):
 	# Variable declarations:
 	solution = np.zeros(shape=[9, 9], dtype=np.int8)
 	candidates = np.full(shape=[9, 9, 9], fill_value=True)
-	puzzle_branches = np.array([puzzle, np.zeros(shape=[9,9])], dtype=np.int8)
-	candidate_branches = np.zeros(shape=[9, 9, 9], dtype=np.int8)
+	puzzle_guesses = np.array([puzzle, np.zeros(shape=[9,9])], dtype=np.int8)
+	candidate_guesses = np.zeros(shape=[9, 9, 9], dtype=np.int8)
 	guess_number = 1
 	number_of_solutions = 0
 	
@@ -418,7 +422,7 @@ def Solve(puzzle, check_other_solutions=False):
 	candidates, error = eliminate_candidates(puzzle, candidates)
 	
 	# The loop repeats until 2 solutions are found or until it is found that the puzzle can't be solved.
-	# Note that the function returns early if a solution is found and the check_other_solutions variable is set to false (see line 414.
+	# Note that the function returns early if a solution is found and the check_other_solutions variable is set to false (see line 444).
 	while guess_number > 0 and number_of_solutions <= 1:
 		error = False
 		change = False
@@ -451,7 +455,7 @@ def Solve(puzzle, check_other_solutions=False):
 			# If a solution is found, or the one rule is broken, we know in advance to reverse the previous guess   
 			
 			# Make a guess (or go back on one) heuristically.
-			puzzle, guess_number, puzzle_branches, candidates, candidate_branches = heuristic_guess(puzzle, guess_number, puzzle_branches, candidate_branches, error, candidates)
+			puzzle, guess_number, puzzle_guesses, candidates,  candidate_guesses = heuristic_guess(puzzle, guess_number, puzzle_guesses,  candidate_guesses, error, candidates)
 	
 	# Finally return the solution and number of solutions (0, 1 or 2+)
 	return solution, number_of_solutions
@@ -463,8 +467,8 @@ def Generate():
 	
 	# Variable declarations:
 	candidates = np.full(shape=[9, 9, 9], fill_value=True)
-	puzzle_branches = np.array([puzzle, np.zeros(shape=[9,9])], dtype=np.int8)
-	candidate_branches = np.zeros(shape=[9, 9, 9], dtype=np.int8)
+	puzzle_guesses = np.array([puzzle, np.zeros(shape=[9,9])], dtype=np.int8)
+	candidate_guesses = np.zeros(shape=[9, 9, 9], dtype=np.int8)
 	guess_number = 1
 	
 	# Update the candidates array based on the puzzle
@@ -490,7 +494,7 @@ def Generate():
 				error = True
 			
 			# Make a random guess.
-			puzzle, guess_number, puzzle_branches, candidates, candidate_branches = random_guess(puzzle, guess_number, puzzle_branches, candidate_branches, error, candidates)
+			puzzle, guess_number, puzzle_guesses, candidates,  candidate_guesses = random_guess(puzzle, guess_number, puzzle_guesses,  candidate_guesses, error, candidates)
 	
 	# Finally return the completed puzzle
 	return puzzle
