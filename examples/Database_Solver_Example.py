@@ -37,7 +37,7 @@ for number in range(database_length):
 	
 	print("Puzzle", number+1, "/", database_length, ":", end=' ') # Print the puzzle number being solved, but don't end on a newline.
 	
-	solution, number_of_solutions = sudoku.Solve(puzzle.copy(), check_other_solutions) # The solve function solves the sudoku. It returns the solution, as well as whether the puzzle has 0, 1 or 2+ (if check_other_solutions = True) solutions. 
+	solution, number_of_solutions = sudoku.solve(puzzle.copy(), check_other_solutions) # The solve function solves the sudoku. It returns the solution, as well as whether the puzzle has 0, 1 or 2+ (if check_other_solutions = True) solutions. 
 	
 	time_elapsed = (time.perf_counter() - start_time) * 1000 # We work out the time taken to solve using the difference between the initial and current time.
 	
