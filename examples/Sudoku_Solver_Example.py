@@ -18,7 +18,7 @@ sudoku.print_puzzle(puzzle)
 
 start_time = time.perf_counter() # Get the start time
 
-solution, no_of_solutions = sudoku.Solve(puzzle.copy()) # Solve the puzzle using the solve function
+solution, no_of_solutions = sudoku.solve(puzzle.copy()) # Solve the puzzle using the solve function
 
 time_elapsed = (time.perf_counter() - start_time) * 1000 # Work out the time taken to solve the puzzle
 
