@@ -402,7 +402,7 @@ def valid_sudoku(puzzle):
 	return True
 
 # The actual function that solves a puzzle
-def Solve(puzzle, check_other_solutions=False):
+def solve(puzzle, check_other_solutions=False):
 	# Check that the puzzle doesn't already break the rule
 	if not valid_sudoku(puzzle):
 		return puzzle, 0
@@ -461,7 +461,7 @@ def Solve(puzzle, check_other_solutions=False):
 	return solution, number_of_solutions
 
 # A function to generate a complete Sudoku
-def Generate():
+def generate():
 	# Make an empty puzzle array
 	puzzle = np.zeros(shape=[9, 9], dtype=np.int8)
 	
@@ -516,14 +516,14 @@ def generate_minimal_puzzle(solution):
 		mask[co_ord] = False
 		
 			
-		temp, number_of_solutions = Solve(solution * mask, True)
+		temp, number_of_solutions = solve(solution * mask, True)
 			
 		if number_of_solutions != 1:
 			mask[co_ord] = True
 	
 	puzzle = solution * mask
 	
-	temp, number_of_solutions = Solve(puzzle.copy(), True)
+	temp, number_of_solutions = solve(puzzle.copy(), True)
 	number_of_clues = np.count_nonzero(puzzle)
 	
 	return puzzle, number_of_clues
