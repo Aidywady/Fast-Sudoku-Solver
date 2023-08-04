@@ -10,7 +10,7 @@ import Sudoku_Solver_Functions as sudoku # importing the actual module
 
 # Random minimal sudoku generator
 
-solution = sudoku.Generate() # Here we generate a random solution using the generate function.
+solution = sudoku.generate() # Here we generate a random solution using the generate function.
 
 print("Solution:") 
 sudoku.print_puzzle(solution) # Then we print the solution in a user friendly manner using the print_puzzle function
