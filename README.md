@@ -1,4 +1,4 @@
-# Fast-Sudoku-Solver
+# Fast Sudoku Solver
 ## Description
 This project provides a very fast python based sudoku solving function suite making use of NumPy. It is useful for any sudoku relating code in python, and includes solving, generating, validating and reading functions.
 
