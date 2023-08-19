@@ -18,7 +18,7 @@ def read_puzzle(filename):
 	if not os.path.isfile(filename):
 		print("No sudoku puzzle found at", filename)
 		return np.zeros(shape=[9, 9], dtype=np.int8)
-	print("opening puzzle file at path", filename)
+	print("opening ", filename)
 	with open(filename, 'r') as file:
 		data = file.read()
 	data = " ".join(data.replace("-", "0").replace(".", "0").replace("?", "0").replace("*", "0").replace(" ", "").replace("\n", ""))
@@ -51,7 +51,7 @@ def read_database(filename):
 		print("No sudoku database found at", filename)
 		return np.zeros(shape=[9, 9], dtype=np.int8), 0
 	
-	print("opening sudoku database at path", filename)
+	print("opening sudoku database ", filename)
 	
 	for line in open(filename, 'r'):
 		if not line.strip().startswith("#"):
