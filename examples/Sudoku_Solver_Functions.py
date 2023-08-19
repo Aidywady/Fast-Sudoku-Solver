@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Author: Aidan Gebbie
-Created: 5 April 2023
+Created: 26 March 2023
 License: GPL-3.0 license
 Description: A fast python based sudoku solving Function suite that uses NumPy. Useful for any sudoku relating code in python.
 User Reference Guide: https://github.com/Aidywady/Fast-Sudoku-Solver/blob/main/README.md
