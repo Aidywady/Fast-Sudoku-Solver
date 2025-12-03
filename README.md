@@ -2,10 +2,15 @@
 ## Description
 This project provides a very fast python based sudoku solving function suite making use of NumPy. It is useful for any sudoku relating code in python, and includes solving, generating, validating and reading functions.
 
-It can solve even the hardest Sudoku puzzles in under 1 second on modern hardware, and has a typical solve speed of 5-200ms for most puzzles. In comparison the fastest alternative python code found on Githuh only achieved an average solve speed of about 500ms for the harder puzzles.
+It can solve even the hardest Sudoku puzzles in under 500ms on modern hardware, and has a typical solve speed of 1-20ms for most puzzles. In comparison the fastest alternative python code found on Githuh only achieved an average solve speed of about 500ms for the harder puzzles.
 
 ## Benchmark Results
-Reminder: insert some graphs and benchmark results.
+A sample of 1000 puzzles from an easy dataset: 0.61ms average
+A sample of 1000 puzzles from a medium dataset: 2.55ms average
+A sample of 1000 puzzles from a hard dataset: 14.76ms average
+Hardest 375 dataset: 26.55ms average
+
+Hardware: i5 1335U + 32GB DDR4 RAM. (Laptop in performance mode) 
 
 ## Dependencies
 This code works using Numpy arrays. It also uses os to navigate files. As such the following libraries must be installed for the code to work:
@@ -54,7 +59,7 @@ Accepts 1 argument (*str* filename) and returns 1 argument (NumPy 9x9 array of n
 ``` python
 read_database(filename)
 ```
-Accepts 1 argument (*str* filename) and returns 2 arguments (NumPy nx9x9 array of np.int8, *int* number of puzzles found). It opens the file at the designated string path (either a filename in the same folder, or the path and filename to a different folder). Each puzzle in that database file must start on a new line, be flattened to 1x81, have a  ‘0’ or ‘.’ placeholder for empty cells, and comment lines must start with a ‘#’. It then returns all the puzzle found in that file as a nx9x9 NumPy array where n is the number of puzzles found, and an int of the number of puzzles found. If no puzzle/file is found, it returns a 9x9 array of zeros, length=0. Larger databases may take more time to process, typically 75 000 puzzles are found per second. It also saves the NumPy array as a .npy file in a /cache/ folder for near instantaneous reads on future runs.
+Accepts 1 argument (*str* filename) and returns 2 arguments (NumPy nx9x9 array of np.int8, *int* number of puzzles found). It opens the file at the designated string path (either a filename in the same folder, or the path and filename to a different folder). Each puzzle in that database file must start on a new line, be flattened to 1x81, have a  ‘0’ or ‘.’ placeholder for empty cells, and comment lines must start with a ‘#’. It then returns all the puzzle found in that file as a nx9x9 NumPy array where n is the number of puzzles found, and an int of the number of puzzles found. If no puzzle/file is found, it returns a 9x9 array of zeros, length=0. Larger databases may take more time to process, typically 100 000 puzzles are found per second. It also saves the NumPy array as a .npy file in a /cache/ folder for near instantaneous reads on future runs.
 
   •  Writing a puzzle to a file (not to be confused with appending to file):
 ``` python
@@ -84,16 +89,28 @@ Accepts 1 argument (NumPy 9x9 array of np.int8) and returns 1 argument (bool whe
 ``` python
 solve(puzzle, check_other_solutions=False)
 ```
-Accepts 1 argument and 1 optional argument (NumPy 9x9 array of np.int8, *bool* check for 2+ solutions which is *False* at default) and returns 2 arguments (a solved puzzle as a NumPy 9x9 array of np.int8 (or an array of zeros if there is no solution), and *int* the number of solutions found (this can be 0 or 1 solution). If *check_other_solutions = True*, the function will try find one other solution, if a second solution is found, the function will return the first solution and number of solutions found will be 2, indicating more than one solution (this slows the solve speed down marginally). Note that depending on the complexity of the puzzle, this function may take more or less time to run, typically between 1ms and 200ms (the slowest recorded time was an extremely hard puzzle that took 1,2 seconds to solve on an i5 4590 desktop PC).
+Accepts 1 argument and 1 optional argument (NumPy 9x9 array of np.int8, *bool* check for 2+ solutions which is *False* at default) and returns 2 arguments (a solved puzzle as a NumPy 9x9 array of np.int8 (or an array of zeros if there is no solution), and *int* the number of solutions found (this can be 0 or 1 solution). If *check_other_solutions = True*, the function will try find one other solution, if a second solution is found, the function will return the first solution and number of solutions found will be 2, indicating more than one solution (this slows the solve speed down marginally). Note that depending on the complexity of the puzzle, this function may take more or less time to run, typically between 1ms and 20ms (the slowest recorded time was an extremely hard puzzle that took 230ms to solve on an i5 1335U laptop).
 
   •  Generating a complete puzzle (i.e. a solution):
 ``` python
 generate()
 ```
-Accepts no arguments and returns 1 argument (NumPy 9x9 array of np.int8). The function generates a random completed (i.e. no zeros) Sudoku puzzle and returns it as a 9x9 NumPy array. It takes roughly 5-10ms to run.
+Accepts no arguments and returns 1 argument (NumPy 9x9 array of np.int8). The function generates a random completed (i.e. no zeros) Sudoku puzzle and returns it as a 9x9 NumPy array. It takes roughly 1-10ms to run.
 
   •  Generate a minimal puzzle from a solution (ie. a rudimentary puzzle generator):
 ``` python
 generate_minimal_puzzle(solution)
 ```
-Accepts 1 argument (NumPy 9x9 array of np.int8) and returns 2 arguments (NumPy 9x9 array of np.int8, *int* number of givens/clues). The function accepts a Sudoku solution and tries to remove numbers in a random order to create a random minimal Sudoku puzzle (i.e., Sudoku puzzle from which no clue can be removed leaving it a proper Sudoku). The minimal puzzle is then returned, as well as how many clues are left. This function typically takes 200ms to run, and usually finds fairly easy puzzles with ±24 clues.
+Accepts 1 argument (NumPy 9x9 array of np.int8) and returns 2 arguments (NumPy 9x9 array of np.int8, *int* number of givens/clues). The function accepts a Sudoku solution and tries to remove numbers in a random order to create a random minimal Sudoku puzzle (i.e., Sudoku puzzle from which no clue can be removed leaving it a proper Sudoku). The minimal puzzle is then returned, as well as how many clues are left. This function typically takes 50ms to run, and usually finds fairly easy puzzles with ±24 clues. Puzzles are ranked with a rudimentry system into 'easy', 'medium', 'hard' or 'expert'. See rate_puzzle for details.
+
+  •  Generate a minimal puzzle from a solution (ie. a rudimentary puzzle generator):
+``` python
+rate_puzzle(puzzle)
+```
+Accepts 1 argument (NumPy 9x9 array of np.int8) and returns 1 argument (string difficulty of the puzzle). 
+Puzzle rating is done according to:
+ * 'easy' : only hidden singles are required to be found to solve the puzzle.
+ * 'medium' : naked singles and locked candidates were required to be found to solve the puzzle.
+ * 'hard' : hidden and naked pairs were required to solve the puzzle.
+ * 'expert' : more advanced methods were required to solve the puzzle.
+ * 'unsolveable' : no solution exists.
