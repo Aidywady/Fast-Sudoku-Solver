@@ -6,8 +6,11 @@ It can solve even the hardest Sudoku puzzles in under 500ms on modern hardware, 
 
 ## Benchmark Results
 A sample of 1000 puzzles from an easy dataset: 0.61ms average
+
 A sample of 1000 puzzles from a medium dataset: 2.55ms average
+
 A sample of 1000 puzzles from a hard dataset: 14.76ms average
+
 Hardest 375 dataset: 26.55ms average
 
 Hardware: i5 1335U + 32GB DDR4 RAM. (Laptop in performance mode) 
