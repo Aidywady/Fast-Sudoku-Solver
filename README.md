@@ -2,7 +2,7 @@
 ## Description
 This project provides a very fast python based sudoku solving function suite making use of NumPy. It is useful for any sudoku relating code in python, and includes solving, generating, validating and reading functions.
 
-It can solve even the hardest Sudoku puzzles in under 500ms on modern hardware, and has a typical solve speed of 1-20ms for most puzzles. In comparison the fastest alternative python code found on Githuh only achieved an average solve speed of about 500ms for the harder puzzles.
+It can solve even the hardest Sudoku puzzles in under 500ms on modern hardware, and has a typical solve speed of 1-20ms for most puzzles. In comparison the fastest alternative python code found on GitHub only achieved an average solve speed of about 500ms for the harder puzzles.
 
 ## Benchmark Results
 A sample of 1000 puzzles from an easy dataset: 0.61ms average
