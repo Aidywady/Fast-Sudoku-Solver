@@ -401,8 +401,7 @@ def find_hidden_pairs(candidates,candidates_box_view, useful_sums):
     
     sum = np.add.reduce(merged_mirrors, axis=1)
     if candidates.any():
-        print(merged_mirrors)
-        print(sum)
+        pass
     
     return False, False
 
@@ -921,13 +920,13 @@ def rate_puzzle(puzzle):
             change = find_locked_candidates(candidates, candidates_col_view)
             locked_candidates += change
             
-        #if not (change or error):
-        #    change, error = find_naked_pairs(candidates, useful_sums)
-        #    naked_pairs += change
-            
         if not (change or error):
-            change, error = find_hidden_pairs(candidates, candidates_box_view, useful_sums)
-            hidden_pairs += change
+            change, error = find_naked_pairs(candidates, useful_sums)
+            naked_pairs += change
+            
+        #if not (change or error):
+        #    change, error = find_hidden_pairs(candidates, candidates_box_view, useful_sums)
+        #    hidden_pairs += change
         
         # If none of the above work, check if the puzzle is solved, or make a guess
         if error or not change:
