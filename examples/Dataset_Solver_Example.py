@@ -6,7 +6,7 @@ Example code for how to solve a complete database of puzzles
 import numpy as np # Used for the arrays
 import time # Used for timing
 
-import Sudoku_Solver_Functions_my_copy as sudoku # importing the actual module
+import Sudoku_Solver_Functions as sudoku # importing the actual module
 
 #Database solver
 filename = 'HardestDatabase.txt' # The filename of the database we are solving
