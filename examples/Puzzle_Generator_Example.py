@@ -7,7 +7,7 @@ A minimal puzzle is a puzzle in which no clue can be removed, otherwise there wi
 import numpy as np # Used for the arrays
 import time
 
-import Sudoku_Solver_Functions_my_copy as sudoku # importing the actual module
+import Sudoku_Solver_Functions as sudoku # importing the actual module
 
 # Random minimal sudoku generator
 
